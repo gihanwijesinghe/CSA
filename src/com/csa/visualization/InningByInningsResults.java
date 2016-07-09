@@ -38,6 +38,33 @@ public class InningByInningsResults {
 	Double BoundaryRunsPresentage;
 	Double dotBowlToRunsRatio;
 	String winOrLoss;
+	int balls;
+	boolean complete;
+	int segment;
+
+	public void setComplete(boolean b){
+		this.complete=b;
+	}
+
+	public boolean getComplete(){
+		return complete;
+	}
+
+	public void setSegment(int b){
+		this.segment=b;
+	}
+
+	public int getSegment(){
+		return segment;
+	}
+
+	public void setBalls(int balls){
+		this.balls=balls;
+	}
+
+	public int getBalls(){
+		return balls;
+	}
 
 	public Double getSixHittingFrequency() {
 		return sixHittingFrequency;

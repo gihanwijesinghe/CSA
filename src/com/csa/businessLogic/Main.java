@@ -54,36 +54,36 @@ public class Main {
 			try {
 				switch (j) {
 
-				case 336041: {
-					j = 392181;
-					continue;
-				}
-				case 392240: {
-					j = 419106;
-					continue;
-				}
-				case 419166: {
-					j = 501198;
-					continue;
-				}
-				case 501272: {
-					j = 548306;
-					continue;
-				}
-				case 548382: {
-					j = 597998;
-					continue;
-				}
-				case 598074: {
-					j = 729279;
-					continue;
-				}
-				case 734050: {
-					j = 829705;
-					continue;
-				}
-				default:
-					file = new File(filepath);
+					case 336041: {
+						j = 392181;
+						continue;
+					}
+					case 392240: {
+						j = 419106;
+						continue;
+					}
+					case 419166: {
+						j = 501198;
+						continue;
+					}
+					case 501272: {
+						j = 548306;
+						continue;
+					}
+					case 548382: {
+						j = 597998;
+						continue;
+					}
+					case 598074: {
+						j = 729279;
+						continue;
+					}
+					case 734050: {
+						j = 829705;
+						continue;
+					}
+					default:
+						file = new File(filepath);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -91,7 +91,13 @@ public class Main {
 			MatchDetails match;
 
 			Innings innings1;
+			Innings innings1_pp;
+			Innings innings1_middle;
+			Innings innings1_death;
 			Innings innings2;
+			Innings innings2_pp;
+			Innings innings2_middle;
+			Innings innings2_death;
 
 			// need to change, unnecessary
 			Team battingTeam1;
@@ -104,10 +110,10 @@ public class Main {
 			Wicket wicket;
 
 			Result result;
-			
+
 			//visualization
 			HashMap<Integer, BatsmansInning> allBattingInnings;
-			
+
 			InningByInningsResults inningResults;
 			BatsmansInning battingInnings;
 			session.beginTransaction();
@@ -116,7 +122,14 @@ public class Main {
 				match = MatchUtil.getMatchInfoFromFile(file);
 
 				innings1 = match.getFirstInnings();
+				innings1_pp = match.getFirstInnings_pp();
+				innings1_middle = match.getFirstInnings_middle();
+				innings1_death = match.getFirstInnings_death();
+
 				innings2 = match.getSecondInnings();
+				innings2_pp = match.getSecondInnings_pp();
+				innings2_middle = match.getSecondInnings_middle();
+				innings2_death = match.getSecondInnings_death();
 
 				battingTeam1 = innings1.getBattingTeam();
 				fieldingTeam1 = innings1.getFieldingTeam();
@@ -127,7 +140,13 @@ public class Main {
 				session.save(match);
 
 				session.save(innings1);
+				session.save(innings1_pp);
+				session.save(innings1_middle);
+				session.save(innings1_death);
 				session.save(innings2);
+				session.save(innings2_pp);
+				session.save(innings2_middle);
+				session.save(innings2_death);
 
 				session.save(battingTeam1);
 				session.save(fieldingTeam1);
@@ -135,32 +154,14 @@ public class Main {
 				session.save(battingTeam2);
 				session.save(fieldingTeam2);
 
-				Map<Integer, Bowl> firstInningsDeliveries = innings1
-						.getDeliveries();
-				Map<Integer, Bowl> secondInningsDeliveries = innings2
-						.getDeliveries();
-
-				for (int i = 1; i <= firstInningsDeliveries.size(); i++) {
-					bowl = firstInningsDeliveries.get(i);
-					System.out.println(bowl.bowlnumber);
-					session.save(bowl);
-
-					wicket = bowl.getWicket();
-					if (bowl.isWicket == 1) {
-						session.save(wicket);
-					}
-				}
-
-				for (int i = 1; i <= secondInningsDeliveries.size(); i++) {
-					bowl = secondInningsDeliveries.get(i);
-					session.save(bowl);
-					System.out.println(bowl.bowlnumber);
-
-					wicket = bowl.getWicket();
-					if (bowl.isWicket == 1) {
-						session.save(wicket);
-					}
-				}
+				deliveryAnalysis(session, innings1);
+				deliveryAnalysis(session, innings1_pp);
+				deliveryAnalysis(session, innings1_middle);
+				deliveryAnalysis(session, innings1_death);
+				deliveryAnalysis(session, innings2);
+				deliveryAnalysis(session, innings2_pp);
+				deliveryAnalysis(session, innings2_middle);
+				deliveryAnalysis(session, innings2_death);
 
 				result = match.getResult();
 				session.save(result);
@@ -168,7 +169,7 @@ public class Main {
 				// visualization
 				allBattingInnings = PlayerUtil
 						.getScoreCardDetailsFirstInnings(match);
-						
+
 				for (int i = 1; i <= allBattingInnings.size(); i++) {
 					// for (int i = 1; i < 2; i++) {
 					battingInnings = allBattingInnings.get(i);
@@ -185,12 +186,37 @@ public class Main {
 					session.save(battingInnings);
 				}
 				//innings Results visualization
-				inningResults = InningsUtil.generateInningsByInningsResultsFirstInnings(match);
+
+				inningResults = InningsUtil.generateInningsByInningsResults(match.getMatchId(),match.getResult().getWonByFirstBatOrSecondBat(),innings1);
 				session.save(inningResults);
-				
-				inningResults = InningsUtil.generateInningsByInningsResultsSecondInnings(match);
+
+				inningResults = InningsUtil.generateInningsByInningsResults(match.getMatchId(),match.getResult().getWonByFirstBatOrSecondBat(),innings1_pp);
 				session.save(inningResults);
-				
+
+				inningResults = InningsUtil.generateInningsByInningsResults(match.getMatchId(),match.getResult().getWonByFirstBatOrSecondBat(),innings1_middle);
+				session.save(inningResults);
+
+				System.out.println("middle");
+
+				System.out.println("Adoo: " + innings1_death.getDeliveries().get(100).batsman);
+
+				inningResults = InningsUtil.generateInningsByInningsResults(match.getMatchId(),match.getResult().getWonByFirstBatOrSecondBat(),innings1_death);
+				session.save(inningResults);
+
+				System.out.println("death");
+
+				inningResults = InningsUtil.generateInningsByInningsResults(match.getMatchId(),match.getResult().getWonByFirstBatOrSecondBat(),innings2);
+				session.save(inningResults);
+
+				inningResults = InningsUtil.generateInningsByInningsResults(match.getMatchId(),match.getResult().getWonByFirstBatOrSecondBat(),innings2_pp);
+				session.save(inningResults);
+
+				inningResults = InningsUtil.generateInningsByInningsResults(match.getMatchId(),match.getResult().getWonByFirstBatOrSecondBat(),innings2_middle);
+				session.save(inningResults);
+
+				inningResults = InningsUtil.generateInningsByInningsResults(match.getMatchId(),match.getResult().getWonByFirstBatOrSecondBat(),innings2_death);
+				session.save(inningResults);
+
 				session.getTransaction().commit();
 
 			} catch (FileNotFoundException e) {
@@ -208,5 +234,28 @@ public class Main {
 		}
 		session.close();
 		sessionFactory.close();
+	}
+
+	private static void deliveryAnalysis(Session session, Innings innings1) {
+
+		Bowl bowl;
+		Wicket wicket;
+
+		Map<Integer, Bowl> InningsDeliveries = innings1
+				.getDeliveries();
+
+		for (int i = 1; i <= InningsDeliveries.size(); i++) {
+
+			if(InningsDeliveries.get(i)!=null) {
+				bowl = InningsDeliveries.get(i);
+				System.out.println(bowl.bowlnumber);
+				session.save(bowl);
+
+				wicket = bowl.getWicket();
+				if (bowl.isWicket == 1) {
+					session.save(wicket);
+				}
+			}
+		}
 	}
 }

@@ -32,6 +32,7 @@ public class MatchUtil {
 	/**
 	 * @param match
 	 */
+
 	public void printMatch(MatchDetails match) {
 		System.out.println("match Id: " + match.getMatchId());
 		System.out.println("matchDate: " + match.getMatchDate());
@@ -46,6 +47,7 @@ public class MatchUtil {
 	public static MatchDetails getMatchInfoFromFile(File filePath)
 			throws FileNotFoundException, YamlException, ParseException {
 		MatchDetails match = new MatchDetails();
+		int count=0;
 
 		YamlReader reader = new YamlReader(new FileReader(filePath));
 
@@ -111,62 +113,38 @@ public class MatchUtil {
 		Map inn2_info = (Map) inn2.get("2nd innings");
 		System.out.println(inn2_info.get("team"));
 
-		HashMap<Integer, Bowl> inni1_deli = getDeliveriesinfo(inn1_info);
-		HashMap<Integer, Bowl> inni2_deli = getDeliveriesinfo(inn2_info);
+		InningsType inni1_deli = getDeliveriesinfo(inn1_info,0);
+		InningsType inni2_deli = getDeliveriesinfo(inn2_info,0);
 
-		Innings firstInnings = new Innings();
+		//first innings segments
+		InningsType inni1_pp = getDeliveriesinfo(inn1_info,1);
+		InningsType inni1_middle = getDeliveriesinfo(inn1_info,2);
+		InningsType inni1_death = getDeliveriesinfo(inn1_info,3);
 
+		//second innings segments
+		InningsType inni2_pp = getDeliveriesinfo(inn2_info,1);
+		InningsType inni2_middle = getDeliveriesinfo(inn2_info,2);
+		InningsType inni2_death = getDeliveriesinfo(inn2_info,3);
+
+		//System.out.println("doneee");
+		String name_bat = (String) inn1_info.get("team"); ;
+		String name_field = (String) inn2_info.get("team") ;
+		//System.out.println("doneee2");
 		Team battingTeam = new Team();
-		String name = (String) inn1_info.get("team");
-		battingTeam.setTeamName(name);
-		firstInnings.setBattingTeam(battingTeam);
+		battingTeam.setTeamName(name_bat);
 
 		Team fieldingTeam = new Team();
-		name = (String) inn2_info.get("team");
-		fieldingTeam.setTeamName(name);
-		firstInnings.setFieldingTeam(fieldingTeam);
+		fieldingTeam.setTeamName(name_field);
 
-		firstInnings.setDeliveries(inni1_deli);
+		match.setFirstInnings(updateInningsAttr(battingTeam,fieldingTeam,inni1_deli,1));
+		match.setFirstInnings_pp(updateInningsAttr(battingTeam,fieldingTeam,inni1_pp,1));
+		match.setFirstInnings_middle(updateInningsAttr(battingTeam,fieldingTeam,inni1_middle,1));
+		match.setFirstInnings_death(updateInningsAttr(battingTeam,fieldingTeam,inni1_death,1));
 
-		// set the Number of Wickets lost in the innings
-		int numOfWicketsLostInFirstInnings = getNumberOfWicketInInnings(inni1_deli);
-		firstInnings.setNumberOfWickets(numOfWicketsLostInFirstInnings);
-
-		// set Number of Runs Socred in an Innings
-		int numOfRunsInInn1 = getNumberOfRunsScoredInAnInnings(inni1_deli);
-		firstInnings.setNumberOfRunsScored(numOfRunsInInn1);
-
-		// set Number of Runs Extras in an Innings
-		int numOfExtrasInInn1 = getNumberOfExtrasInAnInnings(inni1_deli);
-		firstInnings.setNumberOfExtras(numOfExtrasInInn1);
-
-		int inni1_numberOfOvers = 0; // don't know how to find this
-		firstInnings.setNumberOfOvers(inni1_numberOfOvers);
-
-		match.setFirstInnings(firstInnings);
-
-		Innings secondInnings = new Innings();
-
-		secondInnings.setBattingTeam(fieldingTeam);
-		secondInnings.setFieldingTeam(battingTeam);
-		secondInnings.setDeliveries(inni2_deli);
-
-		// set the Number of Wickets lost in the innings
-		int numOfWicketsLostInSecondInnings = getNumberOfWicketInInnings(inni2_deli);
-		secondInnings.setNumberOfWickets(numOfWicketsLostInSecondInnings);
-
-		// set Number of Runs Socred in an Innings
-		int numOfRunsInInn2 = getNumberOfRunsScoredInAnInnings(inni2_deli);
-		secondInnings.setNumberOfRunsScored(numOfRunsInInn2);
-
-		// set Number of Runs Extras in an Innings
-		int numOfExtrasInInn2 = getNumberOfExtrasInAnInnings(inni2_deli);
-		secondInnings.setNumberOfExtras(numOfExtrasInInn2);
-
-		int numOfOversInSecondInnings = 0; // don't know how to find this
-		secondInnings.setNumberOfOvers(numOfOversInSecondInnings);
-
-		match.setSecondInnings(secondInnings);
+		match.setSecondInnings(updateInningsAttr(fieldingTeam,battingTeam,inni2_deli,2));
+		match.setSecondInnings_pp(updateInningsAttr(fieldingTeam,battingTeam,inni2_pp,2));
+		match.setSecondInnings_middle(updateInningsAttr(fieldingTeam,battingTeam,inni2_middle,2));
+		match.setSecondInnings_death(updateInningsAttr(fieldingTeam,battingTeam,inni2_death,2));
 
 		Result result = new Result();
 		// r.setDLmethod(true); //don't know how to find this
@@ -188,72 +166,168 @@ public class MatchUtil {
 		return match;
 	}
 
-	public static HashMap<Integer, Bowl> getDeliveriesinfo(Map inn1_info) {
+	private static Innings updateInningsAttr(Team b, Team f, InningsType inningsType, int inning) {
+
+		Map map = inningsType.deliveries;
+		int count = inningsType.ballCount;
+		int segment = inningsType.segment;
+		boolean complete = inningsType.complete;
+
+		Innings innings = new Innings();
+
+		innings.setInning(inning);
+		innings.setBattingTeam(b);
+		innings.setFieldingTeam(f);
+		innings.setDeliveries(map);
+		innings.setBalls(count);
+		innings.setSegment(segment);
+		innings.setComplete(complete);
+
+		// set the Number of Wickets lost in the innings
+		int numOfWicketsLostInFirstInnings = getNumberOfWicketInInnings(map);
+		innings.setNumberOfWickets(numOfWicketsLostInFirstInnings);
+
+		// set Number of Runs Socred in an Innings
+		int numOfRunsInInn1 = getNumberOfRunsScoredInAnInnings(map);
+		innings.setNumberOfRunsScored(numOfRunsInInn1);
+
+		// set Number of Runs Extras in an Innings
+		int numOfExtrasInInn1 = getNumberOfExtrasInAnInnings(map);
+		innings.setNumberOfExtras(numOfExtrasInInn1);
+
+		int inni1_numberOfOvers = 0; // don't know how to find this
+		innings.setNumberOfOvers(inni1_numberOfOvers);
+
+		return innings;
+	}
+
+	public static InningsType getDeliveriesinfo(Map inn1_info, int segment) {
+
+		double start=0.1;
+		double end = 20.1;
+		int limit=inn1_info.size();
+		int count=0;
+
+		if(segment==1){
+			start =0.1;
+			end = 6.1;
+			limit = inn1_info.size();
+		}
+		else if(segment==2){
+			start =6.1;
+			end = 15.1;
+			limit = inn1_info.size();
+		}
+		else if (segment==3){
+			start =15.1;
+			end = 20.1;
+			limit = inn1_info.size();
+		}
 
 		HashMap<Integer, Bowl> inni1_deli = new HashMap<>();
 
 		ArrayList<Map> deli_list = (ArrayList<Map>) inn1_info.get("deliveries");
 		int inni1_wicketNumber = 0; //
-
+		int bowlNumber = 0;
+		Bowl bowl;
+		System.out.println("SIZEEE: " + deli_list.size());
 		for (int i = 0; i < deli_list.size(); i++) {
 
 			Map deli_map = deli_list.get(i);
-			System.out.println(deli_map);
 			String deli_name = (String) deli_map.keySet().toArray()[0];
-			int overNumber = Integer.parseInt(deli_name.split("\\.")[0]);
+			Double deli_num = Double.parseDouble(deli_name);
 
-			Map delivery = (Map) deli_map.get(deli_name);
-			System.out.println(delivery.get("runs"));
+			if(deli_num>=start && deli_num < end) {
 
-			Map run_map = (Map) delivery.get("runs");
-			int extras = Integer.parseInt((String) run_map.get("extras"));
-			int total = Integer.parseInt((String) run_map.get("total"));
-			int runs = Integer.parseInt((String) run_map.get("batsman"));
+				count++;
+				bowl = new Bowl();
 
-			Bowl bowl = new Bowl();
+				System.out.println("nameeeee: " + deli_num);
+				int overNumber = Integer.parseInt(deli_name.split("\\.")[0]);
 
-			bowl.setBatsman((String) delivery.get("batsman"));
-			bowl.setNonStriker((String) delivery.get("non_striker"));
-			bowl.setBowler((String) delivery.get("bowler"));
-			bowl.setOverNumber(overNumber);
+				Map delivery = (Map) deli_map.get(deli_name);
+				System.out.println(delivery.get("runs"));
 
-			int bowlNumber = i + 1;
-			bowl.setBowlnumber(bowlNumber); // what is this ????? 3.2 or 20th
-											// ball
+				Map run_map = (Map) delivery.get("runs");
+				int extras = Integer.parseInt((String) run_map.get("extras"));
+				int total = Integer.parseInt((String) run_map.get("total"));
+				int runs = Integer.parseInt((String) run_map.get("batsman"));
 
-			if (delivery.containsKey("extras"))
-				bowl.setExtraType(extras); // type int ??? ;for now it's string
+				bowl.setBatsman((String) delivery.get("batsman"));
+				bowl.setNonStriker((String) delivery.get("non_striker"));
+				bowl.setBowler((String) delivery.get("bowler"));
+				bowl.setOverNumber(overNumber);
 
-			bowl.setRuns(runs);
-			bowl.setExtras(extras);
-			bowl.setTotalRuns(total);
-			// runs and totoal runs ????
+				bowlNumber = i + 1;
+				bowl.setBowlnumber(bowlNumber); // what is this ????? 3.2 or 20th
+				// ball
 
-			if (delivery.containsKey("wicket")) {
+				if (delivery.containsKey("extras"))
+					bowl.setExtraType(extras); // type int ??? ;for now it's string
 
-				Map wicket_map = (Map) delivery.get("wicket");
-				String player_out = (String) wicket_map.get("player_out");
-				@SuppressWarnings("unchecked")
-				ArrayList<String> fielders = (ArrayList<String>) wicket_map
-						.get("fielders");
+				bowl.setRuns(runs);
+				bowl.setExtras(extras);
+				bowl.setTotalRuns(total);
+				// runs and totoal runs ????
 
-				String kind = (String) wicket_map.get("kind");
+				if (delivery.containsKey("wicket")) {
 
-				inni1_wicketNumber++;
-				Wicket wicket = new Wicket();
-				wicket.setWicketNumber(inni1_wicketNumber);
-				wicket.setBowler((String) delivery.get("bowler"));
-				wicket.setBatsman(player_out);
-				wicket.setFielder(fielders);
-				wicket.setWicketType(kind);
+					Map wicket_map = (Map) delivery.get("wicket");
+					String player_out = (String) wicket_map.get("player_out");
+					@SuppressWarnings("unchecked")
+					ArrayList<String> fielders = (ArrayList<String>) wicket_map
+							.get("fielders");
 
-				bowl.setIsWicket(1); // boolean or int;
-				bowl.setWicket(wicket);
+					String kind = (String) wicket_map.get("kind");
+
+					inni1_wicketNumber++;
+					Wicket wicket = new Wicket();
+					wicket.setWicketNumber(inni1_wicketNumber);
+					wicket.setBowler((String) delivery.get("bowler"));
+					wicket.setBatsman(player_out);
+					wicket.setFielder(fielders);
+					wicket.setWicketType(kind);
+
+					bowl.setIsWicket(1); // boolean or int;
+					bowl.setWicket(wicket);
+				}
+				System.out.println("segment: " + segment);
+
+				System.out.println("inserted");
+			}
+			else{
+				bowl=null;
+				bowlNumber = i + 1;
 			}
 
 			inni1_deli.put(bowlNumber, bowl);
 		}
-		return inni1_deli;
+		InningsType inningsType = new InningsType();
+
+		if(segment==1 ){
+
+			if(count<36)inningsType.complete=false;
+			else inningsType.complete=true;
+		}
+		else if(segment==2){
+			if(count<54)inningsType.complete=false;
+			else inningsType.complete=true;
+		}
+		else if (segment==3){
+			if(count<30)inningsType.complete=false;
+			else inningsType.complete=true;
+		}
+		else{
+			if(count<120)inningsType.complete=false;
+			else inningsType.complete=true;
+		}
+		System.out.println("return");
+
+		inningsType.ballCount = count;
+		inningsType.deliveries= inni1_deli;
+		inningsType.segment = segment;
+
+		return inningsType;
 	}
 
 	/**
@@ -263,11 +337,15 @@ public class MatchUtil {
 
 	public static int getNumberOfWicketInInnings(Map<Integer, Bowl> diliveries) {
 		int maxWicketNumber = 0;
-		for (int i = 1; i <= diliveries.size(); i++) {
-			Bowl bowl = diliveries.get(i);
 
-			if (bowl.getIsWicket() == 1) {
-				maxWicketNumber++;
+		for (int i = 1; i <= diliveries.size(); i++) {
+
+			if(diliveries.get(i)!=null) {
+				Bowl bowl = diliveries.get(i);
+
+				if (bowl.getIsWicket() == 1) {
+					maxWicketNumber++;
+				}
 			}
 		}
 		return maxWicketNumber;
@@ -277,8 +355,11 @@ public class MatchUtil {
 			Map<Integer, Bowl> diliveries) {
 		int numberOfRuns = 0;
 		for (int i = 1; i <= diliveries.size(); i++) {
-			Bowl bowl = diliveries.get(i);
-			numberOfRuns = numberOfRuns + bowl.getTotalRuns();
+
+			if(diliveries.get(i)!=null) {
+				Bowl bowl = diliveries.get(i);
+				numberOfRuns = numberOfRuns + bowl.getTotalRuns();
+			}
 		}
 		return numberOfRuns;
 	}
@@ -286,11 +367,21 @@ public class MatchUtil {
 	public static int getNumberOfExtrasInAnInnings(Map<Integer, Bowl> diliveries) {
 		int numberOfExtras = 0;
 		for (int i = 1; i <= diliveries.size(); i++) {
-			Bowl bowl = diliveries.get(i);
-			numberOfExtras = numberOfExtras + bowl.getExtras();
+			if(diliveries.get(i)!=null) {
+				Bowl bowl = diliveries.get(i);
+				numberOfExtras = numberOfExtras + bowl.getExtras();
+			}
 
 		}
 		return numberOfExtras;
 	}
 
+}
+
+class InningsType{
+
+	Map<Integer, Bowl> deliveries;
+	int ballCount;
+	int segment;
+	boolean complete;
 }

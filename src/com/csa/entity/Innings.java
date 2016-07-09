@@ -38,12 +38,55 @@ public class Innings {
 	private int numberOfOvers;
 
 	@ElementCollection
+
 	private Map<Integer, Bowl> deliveries = new HashMap<Integer, Bowl>();
 
 	private int numberOfWickets;
 
 	private int numberOfRunsScored;
+
 	private int numberOfExtras;
+
+	private int inning;
+
+	private int balls;
+
+	private int segment;
+
+	private boolean complete;
+
+	public void setSegment(int b){
+		this.segment=b;
+	}
+
+	public int getSegment(){
+		return segment;
+	}
+
+
+	public void setComplete(boolean b){
+		this.complete=b;
+	}
+
+	public boolean getComplete(){
+		return complete;
+	}
+
+	public void setBalls(int balls){
+		this.balls=balls;
+	}
+
+	public int getBalls(){
+		return balls;
+	}
+
+	public void setInning(int inn){
+		this.inning=inn;
+	}
+
+	public int getInning(){
+		return inning;
+	}
 
 	public Innings() {
 		// TODO Auto-generated constructor stub
