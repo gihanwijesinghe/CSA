@@ -8,14 +8,11 @@ import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
-import javax.persistence.Embeddable;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
 
 @Entity
 public class Innings {
@@ -35,7 +32,41 @@ public class Innings {
 	@OneToOne
 	private Team fieldingTeam;
 
-	private int numberOfOvers;
+	@OneToOne
+	private Innings innings_pp;
+
+	@OneToOne
+	private Innings innings_middle;
+
+	@OneToOne
+	private Innings innings_death;
+
+	public void setInnings_pp(Innings innings){
+		this.innings_pp=innings;
+	}
+
+	public Innings getInnings_pp(){
+		return innings_pp;
+	}
+
+	public void setInnings_middle(Innings innings){
+		this.innings_middle=innings;
+	}
+
+	public Innings getInnings_middle(){
+		return innings_middle;
+	}
+
+	public void setInnings_death(Innings innings){
+		this.innings_death=innings;
+	}
+
+	public Innings getInnings_death(){
+		return innings_death;
+	}
+
+
+	private double numberOfOvers;
 
 	@ElementCollection
 
@@ -52,6 +83,8 @@ public class Innings {
 	private int balls;
 
 	private int segment;
+
+	private double runrate;
 
 	private boolean complete;
 
@@ -70,6 +103,14 @@ public class Innings {
 
 	public boolean getComplete(){
 		return complete;
+	}
+
+	public void setRunrate(double d){
+		this.runrate=d;
+	}
+
+	public double getRunrate(){
+		return runrate;
 	}
 
 	public void setBalls(int balls){
@@ -125,7 +166,7 @@ public class Innings {
 	/**
 	 * @return the numberOfOvers
 	 */
-	public int getNumberOfOvers() {
+	public double getNumberOfOvers() {
 		return numberOfOvers;
 	}
 
@@ -133,7 +174,7 @@ public class Innings {
 	 * @param numberOfOvers
 	 *            the numberOfOvers to set
 	 */
-	public void setNumberOfOvers(int numberOfOvers) {
+	public void setNumberOfOvers(double numberOfOvers) {
 		this.numberOfOvers = numberOfOvers;
 	}
 

@@ -41,6 +41,16 @@ public class InningByInningsResults {
 	int balls;
 	boolean complete;
 	int segment;
+	Double runrate;
+	public int totalRuns;
+
+	public void setRunRate(double d){
+		this.runrate=d;
+	}
+
+	public double getRunRate(){
+		return runrate;
+	}
 
 	public void setComplete(boolean b){
 		this.complete=b;

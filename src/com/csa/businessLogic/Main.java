@@ -122,14 +122,14 @@ public class Main {
 				match = MatchUtil.getMatchInfoFromFile(file);
 
 				innings1 = match.getFirstInnings();
-				innings1_pp = match.getFirstInnings_pp();
-				innings1_middle = match.getFirstInnings_middle();
-				innings1_death = match.getFirstInnings_death();
+				innings1_pp = innings1.getInnings_pp();
+				innings1_middle = innings1.getInnings_middle();
+				innings1_death = innings1.getInnings_death();
 
 				innings2 = match.getSecondInnings();
-				innings2_pp = match.getSecondInnings_pp();
-				innings2_middle = match.getSecondInnings_middle();
-				innings2_death = match.getSecondInnings_death();
+				innings2_pp = innings2.getInnings_pp();
+				innings2_middle = innings2.getInnings_middle();
+				innings2_death = innings2.getInnings_death();
 
 				battingTeam1 = innings1.getBattingTeam();
 				fieldingTeam1 = innings1.getFieldingTeam();
@@ -196,14 +196,8 @@ public class Main {
 				inningResults = InningsUtil.generateInningsByInningsResults(match.getMatchId(),match.getResult().getWonByFirstBatOrSecondBat(),innings1_middle);
 				session.save(inningResults);
 
-				System.out.println("middle");
-
-				System.out.println("Adoo: " + innings1_death.getDeliveries().get(100).batsman);
-
 				inningResults = InningsUtil.generateInningsByInningsResults(match.getMatchId(),match.getResult().getWonByFirstBatOrSecondBat(),innings1_death);
 				session.save(inningResults);
-
-				System.out.println("death");
 
 				inningResults = InningsUtil.generateInningsByInningsResults(match.getMatchId(),match.getResult().getWonByFirstBatOrSecondBat(),innings2);
 				session.save(inningResults);

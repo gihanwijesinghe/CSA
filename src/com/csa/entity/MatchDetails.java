@@ -35,22 +35,9 @@ public class MatchDetails {
 
 	@OneToOne
 	Innings firstInnings;
-	@OneToOne
-	Innings firstInnings_pp;
-	@OneToOne
-	Innings firstInnings_middle;
-	@OneToOne
-	Innings firstInnings_death;
-
 
 	@OneToOne
 	Innings secondInnings;
-	@OneToOne
-	Innings secondInnings_pp;
-	@OneToOne
-	Innings secondInnings_middle;
-	@OneToOne
-	Innings secondInnings_death;
 
 	@OneToOne
 	Result result;
@@ -163,7 +150,7 @@ public class MatchDetails {
 		this.secondInnings = secondInnings;
 	}
 
-	public Innings getFirstInnings_pp() {
+	/*public Innings getFirstInnings_pp() {
 		return firstInnings_pp;
 	}
 
@@ -209,7 +196,7 @@ public class MatchDetails {
 
 	public void setSecondInnings_death(Innings secondInnings) {
 		this.secondInnings_death = secondInnings;
-	}
+	}*/
 
 
 	public Result getResult() {

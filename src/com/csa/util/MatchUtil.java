@@ -136,15 +136,19 @@ public class MatchUtil {
 		Team fieldingTeam = new Team();
 		fieldingTeam.setTeamName(name_field);
 
-		match.setFirstInnings(updateInningsAttr(battingTeam,fieldingTeam,inni1_deli,1));
-		match.setFirstInnings_pp(updateInningsAttr(battingTeam,fieldingTeam,inni1_pp,1));
-		match.setFirstInnings_middle(updateInningsAttr(battingTeam,fieldingTeam,inni1_middle,1));
-		match.setFirstInnings_death(updateInningsAttr(battingTeam,fieldingTeam,inni1_death,1));
+		//add first innings segment details
+		Innings first = updateInningsAttr(battingTeam,fieldingTeam,inni1_deli,1);
+		first.setInnings_pp(updateInningsAttr(battingTeam,fieldingTeam,inni1_pp,1));
+		first.setInnings_middle(updateInningsAttr(battingTeam,fieldingTeam,inni1_middle,1));
+		first.setInnings_death(updateInningsAttr(battingTeam,fieldingTeam,inni1_death,1));
+		match.setFirstInnings(first);
 
-		match.setSecondInnings(updateInningsAttr(fieldingTeam,battingTeam,inni2_deli,2));
-		match.setSecondInnings_pp(updateInningsAttr(fieldingTeam,battingTeam,inni2_pp,2));
-		match.setSecondInnings_middle(updateInningsAttr(fieldingTeam,battingTeam,inni2_middle,2));
-		match.setSecondInnings_death(updateInningsAttr(fieldingTeam,battingTeam,inni2_death,2));
+		//add second innings segment details
+		Innings second = updateInningsAttr(fieldingTeam,battingTeam,inni2_deli,2);
+		second.setInnings_pp(updateInningsAttr(fieldingTeam,battingTeam,inni2_pp,2));
+		second.setInnings_middle(updateInningsAttr(fieldingTeam,battingTeam,inni2_middle,2));
+		second.setInnings_death(updateInningsAttr(fieldingTeam,battingTeam,inni2_death,2));
+		match.setSecondInnings(second);
 
 		Result result = new Result();
 		// r.setDLmethod(true); //don't know how to find this
@@ -195,10 +199,34 @@ public class MatchUtil {
 		int numOfExtrasInInn1 = getNumberOfExtrasInAnInnings(map);
 		innings.setNumberOfExtras(numOfExtrasInInn1);
 
-		int inni1_numberOfOvers = 0; // don't know how to find this
+		double inni1_numberOfOvers =  getNumberOfOvers(inningsType); // don't know how to find this
 		innings.setNumberOfOvers(inni1_numberOfOvers);
 
+		innings.setRunrate(getSegmentRunRate(inningsType,numOfRunsInInn1));
+
 		return innings;
+	}
+
+	private static double getSegmentRunRate(InningsType type, int numOfRunsInInn1) {
+
+		double balls = type.legalBallCount;
+		int runs = numOfRunsInInn1;
+		double rate = 0;
+
+		if(balls!=0)rate = (runs/balls)*6;
+
+		System.out.println("RAAAAAATE: " + Math.round(rate * 100.0) / 100.0);
+		return Math.round(rate * 100.0) / 100.0;
+
+
+
+	}
+
+	private static double getNumberOfOvers(InningsType type) {
+
+		int count = type.legalBallCount;
+		//System.out.println("OVERS: " + Double.parseDouble((count/6 + "." + count%6)) );
+		return Double.parseDouble((count/6 + "." + count%6));
 	}
 
 	public static InningsType getDeliveriesinfo(Map inn1_info, int segment) {
@@ -207,6 +235,7 @@ public class MatchUtil {
 		double end = 20.1;
 		int limit=inn1_info.size();
 		int count=0;
+		int legalCount=0;
 
 		if(segment==1){
 			start =0.1;
@@ -240,6 +269,7 @@ public class MatchUtil {
 			if(deli_num>=start && deli_num < end) {
 
 				count++;
+				legalCount++;
 				bowl = new Bowl();
 
 				System.out.println("nameeeee: " + deli_num);
@@ -250,6 +280,15 @@ public class MatchUtil {
 
 				Map run_map = (Map) delivery.get("runs");
 				int extras = Integer.parseInt((String) run_map.get("extras"));
+
+				Map extras_map = (Map) delivery.get("extras");
+
+				if(extras_map!=null) {
+					if (extras_map.get("wides") != null || extras_map.get("noballs") != null) {
+						legalCount--;
+					}
+				}
+
 				int total = Integer.parseInt((String) run_map.get("total"));
 				int runs = Integer.parseInt((String) run_map.get("batsman"));
 
@@ -302,6 +341,7 @@ public class MatchUtil {
 
 			inni1_deli.put(bowlNumber, bowl);
 		}
+
 		InningsType inningsType = new InningsType();
 
 		if(segment==1 ){
@@ -324,6 +364,7 @@ public class MatchUtil {
 		System.out.println("return");
 
 		inningsType.ballCount = count;
+		inningsType.legalBallCount = legalCount;
 		inningsType.deliveries= inni1_deli;
 		inningsType.segment = segment;
 
@@ -382,6 +423,7 @@ class InningsType{
 
 	Map<Integer, Bowl> deliveries;
 	int ballCount;
+	int legalBallCount;
 	int segment;
 	boolean complete;
 }
