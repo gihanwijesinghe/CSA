@@ -26,6 +26,8 @@ import com.sun.jndi.url.corbaname.corbanameURLContextFactory;
 
 public class Main {
 
+	static int count=0;
+
 	public static void main(String[] args) {
 
 		// Result result = new Result();
@@ -88,7 +90,9 @@ public class Main {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			count++;
 			MatchDetails match;
+
 
 			Innings innings1;
 			Innings innings1_pp;
@@ -121,6 +125,7 @@ public class Main {
 			try {
 				match = MatchUtil.getMatchInfoFromFile(file);
 
+				match.setMatchId(count);
 				innings1 = match.getFirstInnings();
 				innings1_pp = innings1.getInnings_pp();
 				innings1_middle = innings1.getInnings_middle();
@@ -137,7 +142,7 @@ public class Main {
 				battingTeam2 = innings2.getBattingTeam();
 				fieldingTeam2 = innings2.getFieldingTeam();
 
-				session.save(match);
+				/*session.save(match);
 
 				session.save(innings1);
 				session.save(innings1_pp);
@@ -152,22 +157,22 @@ public class Main {
 				session.save(fieldingTeam1);
 
 				session.save(battingTeam2);
-				session.save(fieldingTeam2);
+				session.save(fieldingTeam2);*/
 
-				deliveryAnalysis(session, innings1);
+			/*	deliveryAnalysis(session, innings1);
 				deliveryAnalysis(session, innings1_pp);
 				deliveryAnalysis(session, innings1_middle);
 				deliveryAnalysis(session, innings1_death);
 				deliveryAnalysis(session, innings2);
 				deliveryAnalysis(session, innings2_pp);
 				deliveryAnalysis(session, innings2_middle);
-				deliveryAnalysis(session, innings2_death);
+				deliveryAnalysis(session, innings2_death);*/
 
 				result = match.getResult();
-				session.save(result);
+				//session.save(result);
 
 				// visualization
-				allBattingInnings = PlayerUtil
+			/*	allBattingInnings = PlayerUtil
 						.getScoreCardDetailsFirstInnings(match);
 
 				for (int i = 1; i <= allBattingInnings.size(); i++) {
@@ -184,7 +189,7 @@ public class Main {
 					// for (int i = 1; i < 2; i++) {
 					battingInnings = allBattingInnings.get(i);
 					session.save(battingInnings);
-				}
+				}*/
 				//innings Results visualization
 
 				inningResults = InningsUtil.generateInningsByInningsResults(match.getMatchId(),match.getResult().getWonByFirstBatOrSecondBat(),innings1);
@@ -209,7 +214,7 @@ public class Main {
 				session.save(inningResults);
 
 				inningResults = InningsUtil.generateInningsByInningsResults(match.getMatchId(),match.getResult().getWonByFirstBatOrSecondBat(),innings2_death);
-				session.save(inningResults);
+				session.save( inningResults);
 
 				session.getTransaction().commit();
 

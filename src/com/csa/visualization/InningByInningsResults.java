@@ -1,16 +1,14 @@
 package com.csa.visualization;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
-@Entity
-public class InningByInningsResults {
+@MappedSuperclass
+public abstract class InningByInningsResults {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	int inningsId;
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	int matchId;
 
 	int firstInningsOrSecondInnings;

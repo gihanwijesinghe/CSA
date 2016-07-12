@@ -13,7 +13,7 @@ public class InningsUtil {
 	public static InningByInningsResults generateInningsByInningsResults(int matchID, int side,
 			Innings innings) {
 
-		InningByInningsResults inningsFactorSet = new InningByInningsResults();
+		InningByInningsResults inningsFactorSet = new ResultsFactory(innings).getFactoryClass();
 		int iningID = innings.getInning();
 
 		inningsFactorSet.setBalls(innings.getBalls());

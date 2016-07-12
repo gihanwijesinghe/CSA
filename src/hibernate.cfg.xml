@@ -12,13 +12,17 @@
 		<property name="hbm2ddl.auto">create</property>
 		<property name="hibernate.query.factory_class">org.hibernate.hql.classic.ClassicQueryTranslatorFactory</property>
 <!-- 		<mapping class="com.csa.entity.Bowl_by_bowl_details"/> -->
-		<mapping class="com.csa.entity.Bowl"/>
-		<mapping class="com.csa.entity.Innings"/>
-		<mapping class="com.csa.entity.Result"/>
-		<mapping class="com.csa.entity.Team"/>
-		<mapping class="com.csa.entity.Wicket"/>
-		<mapping class="com.csa.entity.MatchDetails"/>
-		<mapping class="com.csa.visualization.BatsmansInning"/>
-		<mapping class="com.csa.visualization.InningByInningsResults"/>
-	</session-factory>
-</hibernate-configuration>
+		<!--	<mapping class="com.csa.entity.Bowl"/>
+            <mapping class="com.csa.entity.Innings"/>
+            <mapping class="com.csa.entity.Result"/>
+            <mapping class="com.csa.entity.Team"/>
+            <mapping class="com.csa.entity.Wicket"/>
+			<mapping class="com.csa.entity.MatchDetails"/>
+            <mapping class="com.csa.visualization.BatsmansInning"/>-->
+            <mapping class="com.csa.visualization.CompleteResults"/>
+            <mapping class="com.csa.visualization.PPResults"/>
+            <mapping class="com.csa.visualization.DeathResults"/>
+            <mapping class="com.csa.visualization.MiddleResults"/>
+
+        </session-factory>
+    </hibernate-configuration>
